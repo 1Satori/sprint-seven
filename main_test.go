@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,28 +15,22 @@ func TestMainHandlerWhenOK(t *testing.T) {
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
 
-	if status := responseRecorder.Code; status == http.StatusOK && assert.NotEmpty(t, responseRecorder.Body) {
-	} else {
-		t.Errorf("status not ok")
-	}
+	require.Equal(t, responseRecorder.Code, http.StatusOK)
+	require.NotEmpty(t, responseRecorder.Body)
 
-	// здесь нужно добавить необходимые проверки
 }
 
 func TestMainHandlerWhenCNT(t *testing.T) {
 	totalcnt := "4"
 
 	req := httptest.NewRequest("GET", "/cafe?count=4&city=moscow", nil)
-
 	responseRecorder := httptest.NewRecorder()
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
-
 	countStr := req.URL.Query().Get("count")
 
-	if !assert.Equal(t, countStr, totalcnt) {
-		httptest.NewRequest("GET", "/cafe?count=4&city=moscow", nil)
-	}
+	assert.Equal(t, countStr, totalcnt)
+
 }
 
 func TestMainHandlerCity(t *testing.T) {
@@ -47,8 +42,5 @@ func TestMainHandlerCity(t *testing.T) {
 
 	cityStr := req.URL.Query().Get("city")
 
-	if !assert.Equal(t, cityStr, "moscow") {
-		t.Error("wrong city value")
-		responseRecorder.Code = http.StatusBadRequest
-	}
+	require.Equal(t, cityStr, "moscow")
 }

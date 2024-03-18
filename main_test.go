@@ -21,18 +21,13 @@ func TestMainHandlerWhenOK(t *testing.T) {
 }
 
 func TestMainHandlerWhenCNT(t *testing.T) {
-	totalcnt := "4"
 
 	req := httptest.NewRequest("GET", "/cafe?count=5&city=moscow", nil)
 	responseRecorder := httptest.NewRecorder()
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
-	countStr := req.URL.Query().Get("count")
 
-	if !assert.Equal(t, countStr, totalcnt) {
-		req = httptest.NewRequest("GET", "/cafe?count=4&city=moscow", nil)
-	}
-
+	assert.Equal(t, req.Body, "/cafe?count=4&city=moscow")
 }
 
 func TestMainHandlerCity(t *testing.T) {
@@ -42,7 +37,5 @@ func TestMainHandlerCity(t *testing.T) {
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
 
-	cityStr := req.URL.Query().Get("city")
-
-	require.Equal(t, cityStr, "moscow", http.StatusBadRequest)
+	require.Equal(t, req.Body, "/cafe?count=4&city=moscow")
 }

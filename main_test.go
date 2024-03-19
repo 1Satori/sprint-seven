@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -21,21 +22,29 @@ func TestMainHandlerWhenOK(t *testing.T) {
 }
 
 func TestMainHandlerWhenCNT(t *testing.T) {
+	totalcnt := 4
+	var bytes []byte
 
 	req := httptest.NewRequest("GET", "/cafe?count=5&city=moscow", nil)
 	responseRecorder := httptest.NewRecorder()
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
 
-	assert.Equal(t, req.Body, "/cafe?count=4&city=moscow")
+	cnt, _ := responseRecorder.Body.Read(bytes)
+	assert.Equal(t, responseRecorder.Code, http.StatusOK)
+	assert.Equal(t, len(strings.Split(string(cnt), ",")), totalcnt)
+
 }
 
 func TestMainHandlerCity(t *testing.T) {
-	req := httptest.NewRequest("GET", "/cafe?count=4&city=abs", nil)
+	var bytes []byte
 
+	req := httptest.NewRequest("GET", "/cafe?count=4&city=abs", nil)
 	responseRecorder := httptest.NewRecorder()
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
 
-	require.Equal(t, req.Body, "/cafe?count=4&city=moscow")
+	cnt, _ := responseRecorder.Body.Read(bytes)
+	assert.Equal(t, responseRecorder.Code, http.StatusOK)
+	require.Equal(t, len(strings.Split(string(cnt), ",")), 4)
 }
